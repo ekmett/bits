@@ -7,6 +7,8 @@
 -- Stability :  experimental
 -- Portability: non-portable
 --
+-- Calculate a number of fiddly bit operations using fast de Bruijn
+-- multiplication tables.
 --------------------------------------------------------------------
 module Data.Bits.Extras
   ( Ranked(..)
