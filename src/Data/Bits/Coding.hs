@@ -48,17 +48,37 @@ instance Functor (Coding m) where
   fmap f (Coding m) = Coding $ \ k -> m (k . f)
   {-# INLINE fmap #-}
 
-instance Applicative (Coding m) where
+instance Monad m => Applicative (Coding m) where
   pure a = Coding $ \k -> k a
   {-# INLINE pure #-}
   (<*>) = ap
   {-# INLINE (<*>) #-}
 
-instance Monad (Coding m) where
+instance Monad m => Monad (Coding m) where
   return a = Coding $ \ k -> k a
   {-# INLINE return #-}
   Coding m >>= f = Coding $ \ k -> m $ \a -> runCoding (f a) k
   {-# INLINE (>>=) #-}
+  fail e = Coding $ \_ _ _ -> fail e
+  {-# INLINE fail #-}
+
+-- Binary.Get is strangely missing MonadPlus
+instance (Monad m, Alternative m) => Alternative (Coding m) where
+  empty = Coding $ \_ _ _ -> empty
+  {-# INLINE empty #-}
+  Coding m <|> Coding n = Coding $ \k i b -> do
+    (a,i',b') <- m (\a i' b' -> pure (a,i',b')) i b <|> n (\a i' b' -> pure (a,i',b')) i b
+    k a i' b'
+  {-# INLINE (<|>) #-}
+
+instance MonadPlus m => MonadPlus (Coding m) where
+  mzero = Coding $ \_ _ _ -> mzero
+  {-# INLINE mzero #-}
+  mplus (Coding m) (Coding n) = Coding $ \k i b -> do
+    (a,i',b') <- m (\a i' b' -> return (a,i',b')) i b `mplus` n (\a i' b' -> return (a,i',b')) i b
+    k a i' b'
+  {-# INLINE mplus #-}
+
 
 instance MonadTrans Coding where
   lift m = Coding $ \k i w -> do
