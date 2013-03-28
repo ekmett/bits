@@ -66,7 +66,10 @@ instance MonadTrans Coding where
 ------------------------------------------------------------------------------
 
 -- | 'Get' something from byte-aligned storage, starting on the next byte
--- and flushing any left over bits.
+-- and discarding any left over bits in the buffer.
+--
+-- /NB:/ Using any operation from 'MonadGet' other than checking 'remaining' or
+-- 'isEmpty' will implicitly perform this operation.
 getAligned :: MonadGet m => m a -> Coding m a
 getAligned m = Coding $ \k _ _ -> m >>= \ a -> k a 0 0
 {-# INLINE getAligned #-}
@@ -135,7 +138,10 @@ instance MonadGet m => MonadGet (Coding m) where
 -- Put
 ------------------------------------------------------------------------------
 
--- | Emit any contents from the bit buffer.
+-- | Emit any remaining contents from the bit buffer.
+--
+-- Any use of the combinators from 'MonadPut' (including 'flush') will cause
+-- this to happen.
 putAligned :: MonadPut m => m a -> Coding m a
 putAligned m = Coding $ \ k i b ->
  if i == 0
