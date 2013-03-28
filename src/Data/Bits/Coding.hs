@@ -4,6 +4,9 @@
 {-# LANGUAGE UnboxedTuples #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 --------------------------------------------------------------------
 -- |
 -- Copyright :  (c) Edward Kmett 2013
@@ -23,6 +26,8 @@ module Data.Bits.Coding
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.State.Class
+import Control.Monad.Reader.Class
 import Control.Monad.Trans
 import Data.Bits
 import Data.Bytes.Get
@@ -60,6 +65,20 @@ instance MonadTrans Coding where
     a <- m
     k a i w
   {-# INLINE lift #-}
+
+instance MonadState s m => MonadState s (Coding m) where
+  get = lift get
+  {-# INLINE get #-}
+  put = lift . put
+  {-# INLINE put #-}
+
+instance MonadReader e m => MonadReader e (Coding m) where
+  ask = lift ask
+  {-# INLINE ask #-}
+  local f (Coding m) = Coding $ \k i b -> do
+    (a,i',b') <- local f $ m (\a i' b' -> return (a, i', b')) i b
+    k a i' b'
+  {-# INLINE local #-}
 
 ------------------------------------------------------------------------------
 -- Get
