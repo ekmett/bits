@@ -130,14 +130,6 @@ instance MonadGet m => MonadGet (Coding m) where
   {-# INLINE uncheckedSkip #-}
   lookAhead (Coding m) = Coding $ \k i b -> lookAhead (m k i b)
   {-# INLINE lookAhead #-}
-  lookAheadM (Coding m) = Coding $ \k i b -> do
-    emm <- lookAheadE $ m (\ma i' b' -> return $ maybe (Left (k Nothing i b)) (\a -> Right (k (Just a) i' b')) ma) i b
-    either id id emm
-  {-# INLINE lookAheadM #-}
-  lookAheadE (Coding m) = Coding $ \k i b -> do
-    emm <- lookAheadE $ m (\ea i' b' -> return $ either (\a -> Left (k (Left a) i b)) (\a -> Right (k (Right a) i' b')) ea) i b
-    either id id emm
-  {-# INLINE lookAheadE #-}
   uncheckedLookAhead = getAligned . uncheckedLookAhead
   {-# INLINE uncheckedLookAhead #-}
   getBytes  = getAligned . getBytes
