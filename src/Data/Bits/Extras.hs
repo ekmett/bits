@@ -1,4 +1,7 @@
 {-# LANGUAGE CPP, ForeignFunctionInterface, MagicHash, UnboxedTuples, BangPatterns #-}
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+{-# LANGUAGE Trustworthy #-}
+#endif
 --------------------------------------------------------------------
 -- |
 -- Copyright :  (c) Edward Kmett 2013
