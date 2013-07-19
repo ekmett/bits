@@ -122,16 +122,25 @@ getBit = Coding $ \ k i b ->
 {-# INLINE getBit #-}
 
 instance MonadGet m => MonadGet (Coding m) where
-  type Unchecked (Coding m) = Unchecked m
+  type Remaining (Coding m) = Remaining m
   type Bytes (Coding m) = Bytes m
   skip = getAligned . skip
   {-# INLINE skip #-}
-  uncheckedSkip = getAligned . uncheckedSkip
-  {-# INLINE uncheckedSkip #-}
   lookAhead (Coding m) = Coding $ \k i b -> lookAhead (m k i b)
   {-# INLINE lookAhead #-}
-  uncheckedLookAhead = getAligned . uncheckedLookAhead
-  {-# INLINE uncheckedLookAhead #-}
+  lookAheadM (Coding m) = Coding $ \k i b -> lookAheadE (m (distribute k) i b) >>= factor
+    where
+      distribute k Nothing i' b'  = return $ Left $ k (Nothing) i' b'
+      distribute k (Just a) i' b' = return $ Right $ k (Just a) i' b'
+      factor = either id id
+  {-# INLINE lookAheadM #-}
+  lookAheadE (Coding m) = Coding $ \k i b -> lookAheadE (m (distribute k) i b) >>= factor
+    where
+      distribute k (Left e) i' b'  = return $ Left $ k (Left e) i' b'
+      distribute k (Right a) i' b' = return $ Right $ k (Right a) i' b'
+      factor = either id id
+  {-# INLINE lookAheadE #-}
+
   getBytes  = getAligned . getBytes
   {-# INLINE getBytes #-}
   remaining = lift remaining
