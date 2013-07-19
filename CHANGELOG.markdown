@@ -1,3 +1,7 @@
+0.3.1
+-----
+* Fixed dependency bounds
+
 0.3
 ---
 * Support for `bytes` 0.8

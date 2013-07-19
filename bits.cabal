@@ -1,6 +1,6 @@
 name:          bits
 category:      Data, Serialization
-version:       0.3
+version:       0.3.1
 license:       BSD3
 cabal-version: >= 1.8
 license-file:  LICENSE
@@ -42,7 +42,7 @@ flag lib-Werror
 library
   build-depends:
     base         >= 4.3      && < 5,
-    bytes        >= 0.7      && < 1,
+    bytes        >= 0.8      && < 1,
     mtl          >= 2.0      && < 2.2,
     transformers >= 0.2      && < 0.4
 
