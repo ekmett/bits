@@ -1,3 +1,7 @@
+0.3
+---
+* Support for `bytes` 0.8
+
 0.2.1
 -----
 * Claim to be Trustworthy
