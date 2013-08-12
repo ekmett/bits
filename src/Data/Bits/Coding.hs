@@ -202,8 +202,8 @@ putBit v = Coding $ \k i b ->
     k () 0 0
   else (k () $! i + 1) $! pushBit b v
   where
-    pushBit w False = shiftL w 1
-    pushBit w True  = shiftL w 1 .|. 1
+    pushBit w False = shiftR w 1
+    pushBit w True  = shiftR w 1 .|. 128
 {-# INLINE putBit #-}
 
 instance MonadPut m => MonadPut (Coding m) where
