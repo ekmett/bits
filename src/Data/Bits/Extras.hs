@@ -16,6 +16,7 @@
 module Data.Bits.Extras
   ( Ranked(..)
   , log2
+  , msb
   , w8
   , w16
   , w32
@@ -180,6 +181,11 @@ w32 = fromIntegral
 w64 :: Integral a => a -> Word64
 w64 = fromIntegral
 {-# INLINE w64 #-}
+
+-- | Calculate the most significant set bit.
+msb :: Ranked t => t -> Int
+msb n = bitSize n - nlz n - 1
+{-# INLINE msb #-}
 
 ------------------------------------------------------------------------------
 -- de Bruijn Multiplication Tables
