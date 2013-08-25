@@ -1,3 +1,7 @@
+0.3.3
+-----
+* Fixed dependencies on old busted versions
+
 0.3.2
 -----
 * Bug fix for `getBit`
