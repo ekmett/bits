@@ -48,6 +48,7 @@ library
 
   exposed-modules:
     Data.Bits.Coding
+    Data.Bits.Coded
     Data.Bits.Extras
 
   if flag(lib-Werror)
