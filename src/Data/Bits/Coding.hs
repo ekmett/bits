@@ -198,12 +198,12 @@ putBit :: MonadPut m => Bool -> Coding m ()
 putBit v = Coding $ \k i b ->
   if i == 7
   then do
-    putWord8 (pushBit b v)
+    putWord8 (pushBit b i v)
     k () 0 0
-  else (k () $! i + 1) $! pushBit b v
+  else (k () $! i + 1) $! pushBit b i v
   where
-    pushBit w False = shiftR w 1
-    pushBit w True  = shiftR w 1 .|. 128
+    pushBit w i False = clearBit w $ 7 - i
+    pushBit w i True  = setBit   w $ 7 - i
 {-# INLINE putBit #-}
 
 instance MonadPut m => MonadPut (Coding m) where
