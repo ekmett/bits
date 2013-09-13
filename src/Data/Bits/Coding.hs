@@ -19,7 +19,7 @@
 module Data.Bits.Coding
   ( Coding(..)
   -- * Get
-  , getAligned, getBit
+  , getAligned, getBit, getBits, getBitsFrom
   -- * Put
   , putAligned, putUnaligned, putBit, putBits, putBitsFrom
   ) where
@@ -30,6 +30,7 @@ import Control.Monad.State.Class
 import Control.Monad.Reader.Class
 import Control.Monad.Trans
 import Data.Bits
+import Data.Bits.Extras
 import Data.Bytes.Get
 import Data.Bytes.Put
 import Data.Word
@@ -120,6 +121,16 @@ getBit = Coding $ \ k i b ->
   then getWord8 >>= \b' -> ((k $! testBit b' 7) $! 7) $! shiftL b' 1
   else ((k $! testBit b 7) $! i - 1) $! shiftL b 1
 {-# INLINE getBit #-}
+
+getBits :: (MonadGet m, Bits b) => Int -> Int -> b -> Coding m b
+getBits from to bits | from < to = return bits
+                     | otherwise = do b <- getBit
+                                      getBits (pred from) to $ assignBit bits from b
+{-# INLINE getBits #-}
+
+getBitsFrom :: (MonadGet m, Bits b) => Int -> b -> Coding m b
+getBitsFrom from bits = getBits from 0 bits
+{-# INLINE getBitsFrom #-}
 
 instance MonadGet m => MonadGet (Coding m) where
   type Remaining (Coding m) = Remaining m
