@@ -21,7 +21,7 @@ module Data.Bits.Coding
   -- * Get
   , getAligned, getBit
   -- * Put
-  , putAligned, putBit
+  , putAligned, putUnaligned, putBit, putBits, putBitsFrom
   ) where
 
 import Control.Applicative
@@ -193,6 +193,11 @@ putAligned m = Coding $ \ k i b ->
    a <- m
    k a 0 0
 
+-- | 'Put' all the bits without a 'flush'
+putUnaligned :: (MonadPut m, Bits b) => b -> Coding m ()
+putUnaligned b = putBitsFrom (bitSize b) b
+{-# INLINE putUnaligned #-}
+
 -- | 'Put' a single bit, emitting an entire 'byte' if the bit buffer is full
 putBit :: MonadPut m => Bool -> Coding m ()
 putBit v = Coding $ \k i b ->
@@ -205,6 +210,18 @@ putBit v = Coding $ \k i b ->
     pushBit w i False = clearBit w $ 7 - i
     pushBit w i True  = setBit   w $ 7 - i
 {-# INLINE putBit #-}
+
+-- TODO: Make putBits less stupid
+-- | 'Put' a (closed) range of bits
+putBits :: (MonadPut m, Bits b) => Int -> Int -> b -> Coding m ()
+putBits from to b | from < to = return ()
+                  | otherwise = putBit (b `testBit` from) >> putBits (pred from) to b
+{-# INLINE putBits #-}
+
+-- | @putBitsFrom from b = putBits from 0 b@
+putBitsFrom :: (MonadPut m, Bits b) => Int -> b -> Coding m ()
+putBitsFrom from b = putBits from 0 b
+{-# INLINE putBitsFrom #-}
 
 instance MonadPut m => MonadPut (Coding m) where
   putWord8 = putAligned . putWord8
