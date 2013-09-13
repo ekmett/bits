@@ -118,8 +118,8 @@ getAligned m = Coding $ \k _ _ -> m >>= \ a -> k a 0 0
 getBit :: MonadGet m => Coding m Bool
 getBit = Coding $ \ k i b ->
   if i == 0
-  then getWord8 >>= \b' -> ((k $! testBit b' 7) $! 7) $! shiftL b' 1
-  else ((k $! testBit b 7) $! i - 1) $! shiftL b 1
+  then getWord8 >>= \b' -> ((k $! testBit b' 7) $! 7) $! unsafeShiftL b' 1
+  else ((k $! testBit b 7) $! i - 1) $! unsafeShiftL b 1
 {-# INLINE getBit #-}
 
 getBits :: (MonadGet m, Bits b) => Int -> Int -> b -> Coding m b
