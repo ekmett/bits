@@ -19,9 +19,9 @@
 module Data.Bits.Coding
   ( Coding(..)
   -- * Get
-  , getAligned, getBit
+  , getAligned, getBit, getBits, getBitsFrom
   -- * Put
-  , putAligned, putBit
+  , putAligned, putUnaligned, putBit, putBits, putBitsFrom
   ) where
 
 import Control.Applicative
@@ -30,6 +30,7 @@ import Control.Monad.State.Class
 import Control.Monad.Reader.Class
 import Control.Monad.Trans
 import Data.Bits
+import Data.Bits.Extras
 import Data.Bytes.Get
 import Data.Bytes.Put
 import Data.Word
@@ -121,6 +122,16 @@ getBit = Coding $ \ k i b ->
   else ((k $! testBit b 7) $! i - 1) $! shiftL b 1
 {-# INLINE getBit #-}
 
+getBits :: (MonadGet m, Bits b) => Int -> Int -> b -> Coding m b
+getBits from to bits | from < to = return bits
+                     | otherwise = do b <- getBit
+                                      getBits (pred from) to $ assignBit bits from b
+{-# INLINE getBits #-}
+
+getBitsFrom :: (MonadGet m, Bits b) => Int -> b -> Coding m b
+getBitsFrom from bits = getBits from 0 bits
+{-# INLINE getBitsFrom #-}
+
 instance MonadGet m => MonadGet (Coding m) where
   type Remaining (Coding m) = Remaining m
   type Bytes (Coding m) = Bytes m
@@ -193,18 +204,35 @@ putAligned m = Coding $ \ k i b ->
    a <- m
    k a 0 0
 
+-- | 'Put' all the bits without a 'flush'
+putUnaligned :: (MonadPut m, Bits b) => b -> Coding m ()
+putUnaligned b = putBitsFrom (bitSize b) b
+{-# INLINE putUnaligned #-}
+
 -- | 'Put' a single bit, emitting an entire 'byte' if the bit buffer is full
 putBit :: MonadPut m => Bool -> Coding m ()
 putBit v = Coding $ \k i b ->
   if i == 7
   then do
-    putWord8 (pushBit b v)
+    putWord8 (pushBit b i v)
     k () 0 0
-  else (k () $! i + 1) $! pushBit b v
+  else (k () $! i + 1) $! pushBit b i v
   where
-    pushBit w False = shiftL w 1
-    pushBit w True  = shiftL w 1 .|. 1
+    pushBit w i False = clearBit w $ 7 - i
+    pushBit w i True  = setBit   w $ 7 - i
 {-# INLINE putBit #-}
+
+-- TODO: Make putBits less stupid
+-- | 'Put' a (closed) range of bits
+putBits :: (MonadPut m, Bits b) => Int -> Int -> b -> Coding m ()
+putBits from to b | from < to = return ()
+                  | otherwise = putBit (b `testBit` from) >> putBits (pred from) to b
+{-# INLINE putBits #-}
+
+-- | @putBitsFrom from b = putBits from 0 b@
+putBitsFrom :: (MonadPut m, Bits b) => Int -> b -> Coding m ()
+putBitsFrom from b = putBits from 0 b
+{-# INLINE putBitsFrom #-}
 
 instance MonadPut m => MonadPut (Coding m) where
   putWord8 = putAligned . putWord8
