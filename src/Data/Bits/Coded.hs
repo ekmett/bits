@@ -15,6 +15,7 @@ module Data.Bits.Coded
   ) where
 
 import Control.Monad
+import Data.Bits
 import Data.Bits.Coding
 import Data.Bytes.Get
 import Data.Bytes.Put
@@ -37,12 +38,14 @@ newtype Unary n = Unary {
   unUnary :: n
 } deriving (Eq, Ord, Read, Show, Num)
 
-instance Integral n => Coded (Unary n) where
-  encode (Unary n) = replicateM (fromIntegral n) (putBit True) >> putBit False
-  decode = do b <- getBit
+ones :: Integer
+ones = complement 0 `shiftL` 1
               case b of
                 False -> return 0
                 True  -> fmap (1+) decode
+instance Integral n => Coded (Unary n) where
+  encode (Unary n) = putBitsFrom (fromIntegral n) ones
+  decode = do b <- getBit
 
 runEncode :: MonadPut m => Coding m () -> m ()
 runEncode (Coding c) = c k 0 0
