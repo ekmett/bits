@@ -16,10 +16,15 @@
 module Data.Bits.Extras
   ( Ranked(..)
   , log2
+  , msb
   , w8
   , w16
   , w32
   , w64
+  , assignBit
+  , zeroBits
+  , oneBits
+  , srl
   ) where
 
 import Data.Bits
@@ -180,6 +185,27 @@ w32 = fromIntegral
 w64 :: Integral a => a -> Word64
 w64 = fromIntegral
 {-# INLINE w64 #-}
+
+-- | Calculate the most significant set bit.
+msb :: Ranked t => t -> Int
+msb n = bitSize n - nlz n - 1
+{-# INLINE msb #-}
+
+assignBit :: Bits b => b -> Int -> Bool -> b
+assignBit b n  True = b `setBit` n
+assignBit b n False = b `clearBit` n
+{-# INLINE assignBit #-}
+
+zeroBits, oneBits :: Bits b => b
+zeroBits = bit 0 `clearBit` 0
+oneBits  = complement zeroBits
+
+-- | Shift Right Logical (i.e., without sign extension)
+--
+-- /NB:/ When used on negative 'Integer's, hilarity may ensue.
+srl :: Bits b => b -> Int -> b
+srl b n = (b `shiftR` n) .&. rotateR (oneBits `shiftL` n) n
+{-# INLINE srl #-}
 
 ------------------------------------------------------------------------------
 -- de Bruijn Multiplication Tables
