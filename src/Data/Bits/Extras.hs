@@ -36,14 +36,14 @@ import GHC.Base
 
 -- TODO: generalize to 64 bits, etc.
 log2 :: Word32 -> Int
-log2 !n0 = fromIntegral $ go (shiftR (n5 * 0x7C4ACDD) 27) where
+log2 !n0 = fromIntegral $ go (unsafeShiftR (n5 * 0x7C4ACDD) 27) where
   go :: Word32 -> Word8
   go !i = inlinePerformIO $ peekElemOff debruijn_log32 (fromIntegral i)
-  !n1 = n0 .|. shiftR n0 1
-  !n2 = n1 .|. shiftR n1 2
-  !n3 = n2 .|. shiftR n2 4
-  !n4 = n3 .|. shiftR n3 8
-  !n5 = n4 .|. shiftR n4 16
+  !n1 = n0 .|. unsafeShiftR n0 1
+  !n2 = n1 .|. unsafeShiftR n1 2
+  !n3 = n2 .|. unsafeShiftR n2 4
+  !n4 = n3 .|. unsafeShiftR n3 8
+  !n5 = n4 .|. unsafeShiftR n4 16
 {-# INLINE log2 #-}
 
 class (Num t, Bits t) => Ranked t where
@@ -63,39 +63,39 @@ class (Num t, Bits t) => Ranked t where
   nlz :: t -> Int
 
 instance Ranked Word64 where
-  lsb n = fromIntegral $ go (shiftR ((n .&. (-n)) * 0x07EDD5E59A4E28C2) 58) where
+  lsb n = fromIntegral $ go (unsafeShiftR ((n .&. (-n)) * 0x07EDD5E59A4E28C2) 58) where
     go :: Word64 -> Word8
     go i = inlinePerformIO $ peekElemOff debruijn_lsb64 (fromIntegral i)
   {-# INLINE lsb #-}
 
   nlz x0 = popCount (complement x6) where
-     x1 = x0 .|. shiftR x0 1
-     x2 = x1 .|. shiftR x1 2
-     x3 = x2 .|. shiftR x2 4
-     x4 = x3 .|. shiftR x3 8
-     x5 = x4 .|. shiftR x4 16
-     x6 = x5 .|. shiftR x5 32
+     x1 = x0 .|. unsafeShiftR x0 1
+     x2 = x1 .|. unsafeShiftR x1 2
+     x3 = x2 .|. unsafeShiftR x2 4
+     x4 = x3 .|. unsafeShiftR x3 8
+     x5 = x4 .|. unsafeShiftR x4 16
+     x6 = x5 .|. unsafeShiftR x5 32
   {-# INLINE nlz #-}
 
 instance Ranked Word32 where
-  lsb n = fromIntegral $ go (shiftR ((n .&. (-n)) * 0x077CB531) 27) where
+  lsb n = fromIntegral $ go (unsafeShiftR ((n .&. (-n)) * 0x077CB531) 27) where
     go :: Word32 -> Word8
     go i = inlinePerformIO $ peekElemOff debruijn_lsb32 (fromIntegral i)
   {-# INLINE lsb #-}
 
 {-
-  rank n = fromIntegral $ go (shiftR ((n .&. (-n)) * 0x4279976B) 26) where
+  rank n = fromIntegral $ go (unsafeShiftR ((n .&. (-n)) * 0x4279976B) 26) where
     go :: Word32 -> Word8
     go i = inlinePerformIO $ peekElemOff debruijn_rank32 (fromIntegral i)
   {-# INLINE rank #-}
 -}
 
   nlz x0 = popCount (complement x5) where
-     x1 = x0 .|. shiftR x0 1
-     x2 = x1 .|. shiftR x1 2
-     x3 = x2 .|. shiftR x2 4
-     x4 = x3 .|. shiftR x3 8
-     x5 = x4 .|. shiftR x4 16
+     x1 = x0 .|. unsafeShiftR x0 1
+     x2 = x1 .|. unsafeShiftR x1 2
+     x3 = x2 .|. unsafeShiftR x2 4
+     x4 = x3 .|. unsafeShiftR x3 8
+     x5 = x4 .|. unsafeShiftR x4 16
   {-# INLINE nlz #-}
 
 
@@ -107,10 +107,10 @@ instance Ranked Word16 where
   {-# INLINE rank #-}
 
   nlz x0 = popCount (complement x4) where
-     x1 = x0 .|. shiftR x0 1
-     x2 = x1 .|. shiftR x1 2
-     x3 = x2 .|. shiftR x2 4
-     x4 = x3 .|. shiftR x3 8
+     x1 = x0 .|. unsafeShiftR x0 1
+     x2 = x1 .|. unsafeShiftR x1 2
+     x3 = x2 .|. unsafeShiftR x2 4
+     x4 = x3 .|. unsafeShiftR x3 8
   {-# INLINE nlz #-}
 
 instance Ranked Word8 where
@@ -121,9 +121,9 @@ instance Ranked Word8 where
   {-# INLINE rank #-}
 
   nlz x0 = popCount (complement x3) where
-     x1 = x0 .|. shiftR x0 1
-     x2 = x1 .|. shiftR x1 2
-     x3 = x2 .|. shiftR x2 4
+     x1 = x0 .|. unsafeShiftR x0 1
+     x2 = x1 .|. unsafeShiftR x1 2
+     x3 = x2 .|. unsafeShiftR x2 4
   {-# INLINE nlz #-}
 
 instance Ranked Int64 where
