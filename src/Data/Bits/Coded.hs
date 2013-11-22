@@ -75,7 +75,7 @@ instance (Coded c, Integral c, Ranked n) => Coded (Elias c n) where
 
 -- | Elias Gamma codes the position of the most significant in
 -- 'Unary'.
-type Gamma c n = Elias (Unary c)   n
+type Gamma c = Elias (Unary c)
 -- | Elias Delta codes the position of the most significant bit in
 -- Elias 'Gamma'.
 type Delta c n = Elias (Gamma c n) n
