@@ -1,10 +1,10 @@
 {-# LANGUAGE CPP, ForeignFunctionInterface, MagicHash, UnboxedTuples, BangPatterns #-}
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
 --------------------------------------------------------------------
 -- |
--- Copyright :  (c) Edward Kmett 2013
+-- Copyright :  (c) Edward Kmett 2013-2014
 -- License   :  BSD3
 -- Maintainer:  Edward Kmett <ekmett@gmail.com>
 -- Stability :  experimental
@@ -46,7 +46,7 @@ log2 !n0 = fromIntegral $ go (unsafeShiftR (n5 * 0x7C4ACDD) 27) where
   !n5 = n4 .|. unsafeShiftR n4 16
 {-# INLINE log2 #-}
 
-class (Num t, Bits t) => Ranked t where
+class (Num t, FiniteBits t) => Ranked t where
   -- | Calculate the least significant set bit using a debruijn multiplication table.
   -- /NB:/ The result of this function is undefined when given 0.
   lsb :: t -> Int
@@ -188,7 +188,7 @@ w64 = fromIntegral
 
 -- | Calculate the most significant set bit.
 msb :: Ranked t => t -> Int
-msb n = bitSize n - nlz n - 1
+msb n = finiteBitSize n - nlz n - 1
 {-# INLINE msb #-}
 
 assignBit :: Bits b => b -> Int -> Bool -> b
@@ -196,8 +196,7 @@ assignBit b n  True = b `setBit` n
 assignBit b n False = b `clearBit` n
 {-# INLINE assignBit #-}
 
-zeroBits, oneBits :: Bits b => b
-zeroBits = bit 0 `clearBit` 0
+oneBits :: Bits b => b
 oneBits  = complement zeroBits
 
 -- | Shift Right Logical (i.e., without sign extension)

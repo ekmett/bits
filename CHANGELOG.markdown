@@ -1,3 +1,7 @@
+0.4
+---
+* Embrace `FiniteBits` from GHC 7.8.3 now that a platform has shipped with it.
+
 0.3.3
 -----
 * Fixed dependencies on old busted versions
