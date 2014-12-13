@@ -46,6 +46,11 @@ library
     mtl          >= 2.0      && < 2.3,
     transformers >= 0.2      && < 0.5
 
+  if impl(ghcjs)
+    build-depends:
+      -- only uses pack and unsafeIndex, which are unlikely to ever change
+      bytestring   >= 0.9
+
   exposed-modules:
     Data.Bits.Coding
     Data.Bits.Coded
@@ -54,7 +59,9 @@ library
   if flag(lib-Werror)
     ghc-options: -Werror
 
-  c-sources: cbits/debruijn.c
+  if !impl(ghcjs)
+    c-sources: cbits/debruijn.c
+
   ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs: src
 
