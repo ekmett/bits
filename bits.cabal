@@ -39,17 +39,21 @@ flag lib-Werror
   default: False
   manual: True
 
+flag use-ffi
+  manual: True
+  default: True
+
 library
   build-depends:
     base         >= 4.7      && < 5,
     bytes        >= 0.11     && < 1,
     mtl          >= 2.0      && < 2.3,
-    transformers >= 0.2      && < 0.5
+    transformers >= 0.2      && < 0.5,
+    -- this is only actually used if the FFI isn't.  It's not guarded
+    -- by the use-ffi flag because doctest will look at Tables no
+    -- matter what, and will fail if bytestring isn't exposed.
+    bytestring   >= 0.9      && < 1
 
-  if impl(ghcjs)
-    build-depends:
-      -- only uses pack and unsafeIndex, which are unlikely to ever change
-      bytestring   >= 0.9
 
   exposed-modules:
     Data.Bits.Coding
@@ -59,8 +63,17 @@ library
   if flag(lib-Werror)
     ghc-options: -Werror
 
-  if !impl(ghcjs)
+  -- I would rather have the definition of use-ffi be conditional
+  -- on impl(ghcjs) but that causes a cabal error:
+  --    https://github.com/haskell/cabal/issues/1069
+  if flag(use-ffi) && !impl(ghcjs)
+    cpp-options: -DBITS_USE_FFI
     c-sources: cbits/debruijn.c
+    other-modules:
+      Data.Bits.Extras.Foreign
+  else
+    other-modules:
+      Data.Bits.Extras.Tables
 
   ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs: src
