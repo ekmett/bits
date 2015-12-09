@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, ForeignFunctionInterface, MagicHash, UnboxedTuples, BangPatterns #-}
+{-# LANGUAGE CPP, BangPatterns #-}
 #if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -30,15 +30,18 @@ module Data.Bits.Extras
 import Data.Bits
 import Data.Int
 import Data.Word
-import Foreign.Ptr
-import Foreign.Storable
-import GHC.Base
+
+#ifdef BITS_USE_FFI
+import Data.Bits.Extras.Foreign
+#else
+import Data.Bits.Extras.Tables
+#endif
 
 -- TODO: generalize to 64 bits, etc.
 log2 :: Word32 -> Int
 log2 !n0 = fromIntegral $ go (unsafeShiftR (n5 * 0x7C4ACDD) 27) where
   go :: Word32 -> Word8
-  go !i = inlinePerformIO $ peekElemOff debruijn_log32 (fromIntegral i)
+  go !i = byteIdx debruijn_log32 (fromIntegral i)
   !n1 = n0 .|. unsafeShiftR n0 1
   !n2 = n1 .|. unsafeShiftR n1 2
   !n3 = n2 .|. unsafeShiftR n2 4
@@ -65,7 +68,7 @@ class (Num t, FiniteBits t) => Ranked t where
 instance Ranked Word64 where
   lsb n = fromIntegral $ go (unsafeShiftR ((n .&. (-n)) * 0x07EDD5E59A4E28C2) 58) where
     go :: Word64 -> Word8
-    go i = inlinePerformIO $ peekElemOff debruijn_lsb64 (fromIntegral i)
+    go i = byteIdx debruijn_lsb64 (fromIntegral i)
   {-# INLINE lsb #-}
 
   nlz x0 = popCount (complement x6) where
@@ -80,13 +83,13 @@ instance Ranked Word64 where
 instance Ranked Word32 where
   lsb n = fromIntegral $ go (unsafeShiftR ((n .&. (-n)) * 0x077CB531) 27) where
     go :: Word32 -> Word8
-    go i = inlinePerformIO $ peekElemOff debruijn_lsb32 (fromIntegral i)
+    go i = byteIdx debruijn_lsb32 (fromIntegral i)
   {-# INLINE lsb #-}
 
 {-
   rank n = fromIntegral $ go (unsafeShiftR ((n .&. (-n)) * 0x4279976B) 26) where
     go :: Word32 -> Word8
-    go i = inlinePerformIO $ peekElemOff debruijn_rank32 (fromIntegral i)
+    go i = byteIdx debruijn_rank32 (fromIntegral i)
   {-# INLINE rank #-}
 -}
 
@@ -205,19 +208,3 @@ oneBits  = complement zeroBits
 srl :: Bits b => b -> Int -> b
 srl b n = (b `shiftR` n) .&. rotateR (oneBits `shiftL` n) n
 {-# INLINE srl #-}
-
-------------------------------------------------------------------------------
--- de Bruijn Multiplication Tables
-------------------------------------------------------------------------------
-
-foreign import ccall "static &debruijn_lsb64"  debruijn_lsb64  :: Ptr Word8
-foreign import ccall "static &debruijn_lsb32"  debruijn_lsb32  :: Ptr Word8
--- foreign import ccall "static &debruijn_rank32" debruijn_rank32 :: Ptr Word8
-foreign import ccall "static &debruijn_log32"  debruijn_log32  :: Ptr Word8
-
-#ifndef HLINT
-inlinePerformIO :: IO a -> a
-inlinePerformIO (IO m) = case m realWorld# of
-  (# _, r #) -> r
-{-# INLINE inlinePerformIO #-}
-#endif
