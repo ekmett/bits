@@ -35,10 +35,6 @@ flag test-doctests
   default: True
   manual: True
 
-flag lib-Werror
-  default: False
-  manual: True
-
 library
   build-depends:
     base         >= 4.7      && < 5,
@@ -50,9 +46,6 @@ library
     Data.Bits.Coding
     Data.Bits.Coded
     Data.Bits.Extras
-
-  if flag(lib-Werror)
-    ghc-options: -Werror
 
   c-sources: cbits/debruijn.c
   ghc-options: -Wall -fwarn-tabs -O2
@@ -72,6 +65,3 @@ test-suite doctests
       directory      >= 1.0,
       doctest        >= 0.9.1,
       filepath       >= 1.2
-
-  if impl(ghc<7.6.1)
-    ghc-options: -Werror
