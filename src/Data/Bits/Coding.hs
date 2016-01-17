@@ -56,7 +56,7 @@ instance Monad m => Applicative (Coding m) where
   {-# INLINE (<*>) #-}
 
 instance Monad m => Monad (Coding m) where
-  return a = Coding $ \ k -> k a
+  return = pure
   {-# INLINE return #-}
   Coding m >>= f = Coding $ \ k -> m $ \a -> runCoding (f a) k
   {-# INLINE (>>=) #-}
