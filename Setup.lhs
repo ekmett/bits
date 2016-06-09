@@ -11,7 +11,7 @@ import Distribution.Simple ( defaultMainWithHooks, UserHooks(..), simpleUserHook
 import Distribution.Simple.Utils ( rewriteFile, createDirectoryIfMissingVerbose, copyFiles )
 import Distribution.Simple.BuildPaths ( autogenModulesDir )
 import Distribution.Simple.Setup ( BuildFlags(buildVerbosity), Flag(..), fromFlag, HaddockFlags(haddockDistPref))
-import Distribution.Simple.LocalBuildInfo ( withLibLBI, withTestLBI, LocalBuildInfo(), ComponentLocalBuildInfo(componentPackageDeps) )
+import Distribution.Simple.LocalBuildInfo ( withLibLBI, withTestLBI, LocalBuildInfo(buildDir), ComponentLocalBuildInfo(componentPackageDeps) )
 import Distribution.Text ( display )
 import Distribution.Verbosity ( Verbosity, normal )
 import System.FilePath ( (</>) )
@@ -41,6 +41,13 @@ generateBuildModule verbosity pkg lbi = do
     withTestLBI pkg lbi $ \suite suitecfg -> do
       rewriteFile (dir </> "Build_" ++ testName suite ++ ".hs") $ unlines
         [ "module Build_" ++ testName suite ++ " where"
+        , ""
+        , "autogen_dir :: String"
+        , "autogen_dir = " ++ show dir
+        , ""
+        , "build_dir :: String"
+        , "build_dir = " ++ show (buildDir lbi)
+        , ""
         , "deps :: [String]"
         , "deps = " ++ (show $ formatdeps (testDeps libcfg suitecfg))
         ]
