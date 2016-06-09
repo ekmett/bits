@@ -56,6 +56,7 @@ test-suite doctests
   main-is:        doctests.hs
   ghc-options:    -Wall -threaded
   hs-source-dirs: tests
+  c-sources:      cbits/debruijn.c
 
   if !flag(test-doctests)
     buildable: False
