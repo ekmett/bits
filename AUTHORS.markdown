@@ -2,7 +2,7 @@ Analytics was started by [Edward Kmett](https://github.com/ekmett) in response t
 
 `bits` was spun out of work that was being done on the `analytics` repository in bitwise encodings for compression schemes.
 
-You can watch contributors carry on the quest for bragging rights in the [contributors graph](https://github.com/analytics/bits/graphs/contributors).
+You can watch contributors carry on the quest for bragging rights in the [contributors graph](https://github.com/ekmett/bits/graphs/contributors).
 
 Omission from this list is by no means an attempt to discount your contribution.
 
