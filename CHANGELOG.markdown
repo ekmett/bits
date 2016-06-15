@@ -1,6 +1,7 @@
 0.5
 ---
 * ghc 8 support
+* Fixed doctests
 
 0.4
 ---

@@ -24,7 +24,7 @@ matrix:
       addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.1,hlint], sources: [hvr-ghc]}}
     - env: CABALVER=1.24 GHCVER=head
       compiler: ": #GHC head"
-      addons: {apt: {packages: [cabal-install-head,ghc-head,hlint], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [cabal-install-1.24,ghc-head,hlint], sources: [hvr-ghc]}}
 
   allow_failures:
     - env: CABALVER=1.24 GHCVER=head
