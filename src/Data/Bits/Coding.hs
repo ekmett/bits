@@ -206,7 +206,7 @@ putAligned m = Coding $ \ k i b ->
 
 -- | 'Put' all the bits without a 'flush'
 putUnaligned :: (MonadPut m, FiniteBits b) => b -> Coding m ()
-putUnaligned b = putBitsFrom (finiteBitSize b) b
+putUnaligned b = putBitsFrom (pred $ finiteBitSize b) b
 {-# INLINE putUnaligned #-}
 
 -- | 'Put' a single bit, emitting an entire 'byte' if the bit buffer is full
