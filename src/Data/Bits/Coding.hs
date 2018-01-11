@@ -1,8 +1,5 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE UnboxedTuples #-}
-{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -129,7 +126,7 @@ getBits from to bits | from < to = return bits
 {-# INLINE getBits #-}
 
 getBitsFrom :: (MonadGet m, Bits b) => Int -> b -> Coding m b
-getBitsFrom from bits = getBits from 0 bits
+getBitsFrom from = getBits from 0
 {-# INLINE getBitsFrom #-}
 
 instance MonadGet m => MonadGet (Coding m) where
@@ -141,7 +138,7 @@ instance MonadGet m => MonadGet (Coding m) where
   {-# INLINE lookAhead #-}
   lookAheadM (Coding m) = Coding $ \k i b -> lookAheadE (m (distribute k) i b) >>= factor
     where
-      distribute k Nothing i' b'  = return $ Left $ k (Nothing) i' b'
+      distribute k Nothing i' b'  = return $ Left $ k Nothing i' b'
       distribute k (Just a) i' b' = return $ Right $ k (Just a) i' b'
       factor = either id id
   {-# INLINE lookAheadM #-}
@@ -231,7 +228,7 @@ putBits from to b | from < to = return ()
 
 -- | @putBitsFrom from b = putBits from 0 b@
 putBitsFrom :: (MonadPut m, Bits b) => Int -> b -> Coding m ()
-putBitsFrom from b = putBits from 0 b
+putBitsFrom from = putBits from 0
 {-# INLINE putBitsFrom #-}
 
 instance MonadPut m => MonadPut (Coding m) where

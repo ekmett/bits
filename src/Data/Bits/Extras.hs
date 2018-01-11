@@ -1,6 +1,10 @@
-{-# LANGUAGE CPP, ForeignFunctionInterface, MagicHash, UnboxedTuples, BangPatterns #-}
+{-# LANGUAGE CPP, ForeignFunctionInterface, BangPatterns #-}
 #if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
+#endif
+#ifndef HLINT
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE UnboxedTuples #-}
 #endif
 --------------------------------------------------------------------
 -- |
