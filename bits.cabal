@@ -72,4 +72,4 @@ test-suite doctests
     build-depends:
       base,
       bits,
-      doctest >= 0.11.1 && < 0.15
+      doctest >= 0.11.1 && < 0.16
