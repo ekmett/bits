@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Add a `MonadFail` instance for `Coding`.
+
 0.5.1
 -----
 * Fix off-by-one error in `putUnaligned`

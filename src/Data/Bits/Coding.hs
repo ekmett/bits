@@ -23,6 +23,7 @@ module Data.Bits.Coding
 
 import Control.Applicative
 import Control.Monad
+import qualified Control.Monad.Fail as Fail
 import Control.Monad.State.Class
 import Control.Monad.Reader.Class
 import Control.Monad.Trans
@@ -58,6 +59,10 @@ instance Monad m => Monad (Coding m) where
   Coding m >>= f = Coding $ \ k -> m $ \a -> runCoding (f a) k
   {-# INLINE (>>=) #-}
   fail e = Coding $ \_ _ _ -> fail e
+  {-# INLINE fail #-}
+
+instance Fail.MonadFail m => Fail.MonadFail (Coding m) where
+  fail e = Coding $ \_ _ _ -> Fail.fail e
   {-# INLINE fail #-}
 
 -- Binary.Get is strangely missing MonadPlus

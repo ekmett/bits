@@ -55,6 +55,9 @@ library
     mtl          >= 2.0      && < 2.3,
     transformers >= 0.2      && < 0.6
 
+  if !impl(ghc >= 8.0)
+    build-depends: fail == 4.9.*
+
   exposed-modules:
     Data.Bits.Coding
     Data.Bits.Coded
