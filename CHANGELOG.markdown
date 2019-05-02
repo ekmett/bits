@@ -1,5 +1,6 @@
 next [????.??.??]
 -----------------
+* Support building with `base-4.13` (GHC 8.8).
 * Add a `MonadFail` instance for `Coding`.
 
 0.5.1

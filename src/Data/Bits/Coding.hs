@@ -58,8 +58,10 @@ instance Monad m => Monad (Coding m) where
   {-# INLINE return #-}
   Coding m >>= f = Coding $ \ k -> m $ \a -> runCoding (f a) k
   {-# INLINE (>>=) #-}
+#if !(MIN_VERSION_base(4,13,0))
   fail e = Coding $ \_ _ _ -> fail e
   {-# INLINE fail #-}
+#endif
 
 instance Fail.MonadFail m => Fail.MonadFail (Coding m) where
   fail e = Coding $ \_ _ _ -> Fail.fail e
