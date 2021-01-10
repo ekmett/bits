@@ -23,13 +23,10 @@ synopsis:      Various bit twiddling and bitwise serialization primitives
 description:   Various bit twiddling and bitwise serialization primitives.
 
 extra-source-files:
-  .travis.yml
   .ghci
   .gitignore
   .hlint.yaml
   .vim.custom
-  travis/cabal-apt-install
-  travis/config
   AUTHORS.markdown
   README.markdown
   CHANGELOG.markdown
