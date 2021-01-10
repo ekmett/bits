@@ -25,6 +25,9 @@ import Data.Bytes.Get
 import Data.Bytes.Put
 import Data.Foldable
 
+-- $setup
+-- >>> import Data.Bytes.Put
+
 -- | Unaligned codes
 class Coded c where
   encode     :: MonadPut m => c -> Coding m ()
