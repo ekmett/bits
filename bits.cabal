@@ -1,6 +1,6 @@
 name:          bits
 category:      Data, Serialization
-version:       0.5.2
+version:       0.5.3
 license:       BSD3
 cabal-version: >= 1.10
 license-file:  LICENSE
