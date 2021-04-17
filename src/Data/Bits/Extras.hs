@@ -200,13 +200,17 @@ assignBit b n  True = b `setBit` n
 assignBit b n False = b `clearBit` n
 {-# INLINE assignBit #-}
 
-oneBits :: Bits b => b
+-- Data.Bits defines a `oneBits` function in base-4.16.0.0 or later. For older
+-- versions of base, we backport `oneBits` here.
+#if !(MIN_VERSION_base(4,16,0))
+oneBits :: FiniteBits b => b
 oneBits  = complement zeroBits
+#endif
 
 -- | Shift Right Logical (i.e., without sign extension)
 --
 -- /NB:/ When used on negative 'Integer's, hilarity may ensue.
-srl :: Bits b => b -> Int -> b
+srl :: FiniteBits b => b -> Int -> b
 srl b n = (b `shiftR` n) .&. rotateR (oneBits `shiftL` n) n
 {-# INLINE srl #-}
 

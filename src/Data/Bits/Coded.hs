@@ -46,7 +46,7 @@ newtype Unary n = Unary {
 } deriving (Eq, Ord, Read, Show, Num, Integral, Real, Enum)
 
 ones :: Integer
-ones = oneBits `unsafeShiftL` 1
+ones = complement zeroBits `unsafeShiftL` 1
 instance Integral n => Coded (Unary n) where
   encode (Unary n) = putBitsFrom (fromIntegral n) ones
   decode = do b <- getBit
