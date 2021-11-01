@@ -28,6 +28,7 @@ module Data.Bits.Extras
   , assignBit
   , zeroBits
   , oneBits
+  , unsafeOneBits
   , srl
   ) where
 
@@ -37,6 +38,10 @@ import Data.Word
 import Foreign.Ptr
 import Foreign.Storable
 import GHC.Base
+
+-- $setup
+-- >>> import Data.Bits (Bits(..))
+-- >>> import Data.Word (Word)
 
 -- TODO: generalize to 64 bits, etc.
 log2 :: Word32 -> Int
@@ -200,14 +205,38 @@ assignBit b n  True = b `setBit` n
 assignBit b n False = b `clearBit` n
 {-# INLINE assignBit #-}
 
-oneBits :: Bits b => b
-oneBits  = complement zeroBits
+#if !(MIN_VERSION_base(4,16,0))
+-- | A more concise version of @complement zeroBits@.
+--
+-- >>> complement (zeroBits :: Word) == (oneBits :: Word)
+-- True
+--
+-- >>> complement (oneBits :: Word) == (zeroBits :: Word)
+-- True
+--
+-- = Note
+--
+-- The constraint on 'oneBits' is arguably too strong. However, as some types
+-- (such as 'Natural') have undefined 'complement', this is the only safe
+-- choice.
+oneBits :: FiniteBits b => b
+oneBits = unsafeOneBits
+#endif
+
+-- | A version of 'oneBits' that weakens the context from 'FiniteBits' to
+-- 'Bits'. This is unsafe because there are some data types with 'Bits'
+-- instances that have undefined 'complement', such as 'Natural'. Nevertheless,
+-- it is sometimes useful to call this function on data types without
+-- 'FiniteBits' instances (e.g., 'Integer'), so this function is provided as a
+-- convenience.
+unsafeOneBits :: Bits b => b
+unsafeOneBits = complement zeroBits
 
 -- | Shift Right Logical (i.e., without sign extension)
 --
 -- /NB:/ When used on negative 'Integer's, hilarity may ensue.
 srl :: Bits b => b -> Int -> b
-srl b n = (b `shiftR` n) .&. rotateR (oneBits `shiftL` n) n
+srl b n = (b `shiftR` n) .&. rotateR (unsafeOneBits `shiftL` n) n
 {-# INLINE srl #-}
 
 ------------------------------------------------------------------------------

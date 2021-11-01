@@ -1,3 +1,13 @@
+0.6 [????.??.??]
+----------------
+* Allow building with GHC 9.2.1.
+* The `Data.Bits.Extras.oneBits` function now matches the implementation of the
+  `oneBits` function from `base`'s `Data.Bits` module. This is a breaking
+  change since the constraint has been strengthened from `Bits` to
+  `FiniteBits`. If you need to invoke `oneBits` on a data type that does not
+  have a `FiniteBits` instance (e.g., `Integer`), use the newly added
+  `unsafeOneBits` function instead.
+
 0.5.3 [2021.02.17]
 ------------------
 * The build-type has been changed from `Custom` to `Simple`.
