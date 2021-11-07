@@ -1,4 +1,4 @@
-0.6 [????.??.??]
+0.6 [2021.11.07]
 ----------------
 * Allow building with GHC 9.2.1.
 * The `Data.Bits.Extras.oneBits` function now matches the implementation of the
