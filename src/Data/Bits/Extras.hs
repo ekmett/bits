@@ -20,6 +20,11 @@
 module Data.Bits.Extras
   ( Ranked(..)
   , log2
+#if __GLASGOW_HASKELL__ >= 900
+  , integerLog2
+  , wordLog2
+#endif
+  , word32Log2
   , msb
   , w8
   , w16
@@ -38,14 +43,49 @@ import Data.Word
 import Foreign.Ptr
 import Foreign.Storable
 import GHC.Base
+#if __GLASGOW_HASKELL__ >= 900
+import Control.Exception
+import GHC.Integer.Logarithms
+#endif
 
 -- $setup
 -- >>> import Data.Bits (Bits(..))
 -- >>> import Data.Word (Word)
 
--- TODO: generalize to 64 bits, etc.
+#if __GLASGOW_HASKELL__ >= 900
+
+-- | Calculate the integer base 2 logarithm. The argument must be strictly
+-- positive. On GHC 9.0 or later, the argument type is generalized from
+-- 'Word32' to any 'Integral' type.
+log2 :: Integral a => a -> Int
+log2 = integerLog2 . toInteger
+{-# NOINLINE [1] log2 #-}
+{-# RULES
+"log2/Integer->Int" log2 = integerLog2 :: Integer -> Int
+"log2/Word->Int" log2 = wordLog2 :: Word -> Int
+"log2/Word32->Int" log2 = word32Log2 :: Word32 -> Int
+  #-}
+
+integerLog2 :: Integer -> Int
+integerLog2 n
+  | n > 0 = I# (integerLog2# n)
+  | otherwise = throw Overflow
+{-# INLINE integerLog2 #-}
+
+wordLog2 :: Word -> Int
+wordLog2 (W# n) = I# (wordLog2# n)
+{-# INLINE wordLog2 #-}
+
+#else
+
 log2 :: Word32 -> Int
-log2 !n0 = fromIntegral $ go (unsafeShiftR (n5 * 0x7C4ACDD) 27) where
+log2 = word32Log2
+{-# INLINE log2 #-}
+
+#endif
+
+word32Log2 :: Word32 -> Int
+word32Log2 !n0 = fromIntegral $ go (unsafeShiftR (n5 * 0x7C4ACDD) 27) where
   go :: Word32 -> Word8
   go !i = inlinePerformIO $ peekElemOff debruijn_log32 (fromIntegral i)
   !n1 = n0 .|. unsafeShiftR n0 1
@@ -53,7 +93,7 @@ log2 !n0 = fromIntegral $ go (unsafeShiftR (n5 * 0x7C4ACDD) 27) where
   !n3 = n2 .|. unsafeShiftR n2 4
   !n4 = n3 .|. unsafeShiftR n3 8
   !n5 = n4 .|. unsafeShiftR n4 16
-{-# INLINE log2 #-}
+{-# INLINE word32Log2 #-}
 
 class (Num t, FiniteBits t) => Ranked t where
   -- | Calculate the least significant set bit using a debruijn multiplication table.

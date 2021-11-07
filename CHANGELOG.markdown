@@ -7,6 +7,7 @@
   `FiniteBits`. If you need to invoke `oneBits` on a data type that does not
   have a `FiniteBits` instance (e.g., `Integer`), use the newly added
   `unsafeOneBits` function instead.
+* Generalize `log2` to all `Integral` types with `base` >= 4.15 (GHC >= 9.0).
 
 0.5.3 [2021.02.17]
 ------------------
